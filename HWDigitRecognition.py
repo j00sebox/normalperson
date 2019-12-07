@@ -24,13 +24,6 @@ def train():
                [[0],  [0], [0], [0], [0], [0], [0], [0], [1], [0]],
                [[0],  [0], [0], [0], [0], [0], [0], [0], [0], [1]] ])
 
-    for  t in targets:
-        for n in t:
-            if n == 1:
-                n = 0.99
-            else:
-                n = 0.01
-
     # iterate through all test batches
     for x in range(0, 999):
         with open("pickled/pickled_mnist" + str(x) + ".plk", "br") as fh:
@@ -69,12 +62,47 @@ def test():
                 inp2 = int(input("Now choose a number from 0 - 60: "))
 
                 # let the network guess
-                digit.guess(test_imgs[inp2].reshape(784, 1))
+                print('Guess is: ', digit.guess(test_imgs[inp2].reshape(784, 1)))
 
                 # display test digit
                 img = test_imgs[inp2].reshape((28,28))
                 plt.imshow(img, cmap="Greys")
                 plt.show()
+
+def calculate_accuracy(itr):
+    # load weights and biases into matrix
+    digit.load_weights_and_biases()
+
+    # initialize variables
+    correct = 0
+    total = 0
+
+    # iterate as many times as requested
+    for i in range(0, itr):
+        # pick a random test batch
+        r = np.random.randint(0, 165)
+        with open("pickled/pickled_mnist" + str(r) + ".plk", "br") as fh:
+                    data = pickle.load(fh)
+                    test_imgs = data[0]
+                    test_labels = data[1]
+                    
+                    # pick a random test case
+                    rand = np.random.randint(0, 59)
+
+                    # let the network guess
+                    g = digit.guess(test_imgs[rand].reshape(784, 1))
+                    
+                    # if the guess matches the label increment the correct
+                    if g == int(test_labels[rand]):
+                        correct += 1
+                    
+                    total += 1
+
+    acc = correct / total
+
+    print('Accuracy of network = ', np.round(acc*100, 2), '%')
+
+
 
 # take csv file and pickle into multiple batches
 def pickle_csv():
@@ -106,8 +134,9 @@ def pickle_csv():
 
 
 def main():
-    test()
-    #train()
+    #test()
+    train()
+    #calculate_accuracy(2000)
     #pickle_csv()
 
 if __name__ == '__main__':
