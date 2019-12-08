@@ -7,7 +7,7 @@ import pickle
 l = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
 
 # initialize network topology
-digit = NeuralNetwork(784, [12, 12], 10, l)
+digit = NeuralNetwork(784, [300, 100], 10, l, 0.005)
 
 def train():
 
@@ -24,6 +24,9 @@ def train():
                [[0],  [0], [0], [0], [0], [0], [0], [0], [1], [0]],
                [[0],  [0], [0], [0], [0], [0], [0], [0], [0], [1]] ])
 
+    inp = []
+    tar = []
+
     # iterate through all test batches
     for x in range(0, 999):
         with open("pickled/pickled_mnist" + str(x) + ".plk", "br") as fh:
@@ -34,8 +37,14 @@ def train():
             # iterate through all training cases
             for i in  range(0, len(train_imgs)):
                 digit.train(train_imgs[i].reshape(784, 1), targets[int(train_labels[i][0])])
+            #     inp.append(train_imgs[i].reshape(784, 1))
+            #     tar.append(targets[int(train_labels[i][0])])
+
+            # digit.train_batch(np.asarray(inp), np.asarray(tar), 60)
             train_imgs = []
             train_labels = []
+            inp = []
+            tar = []
 
     digit.store_weights_and_biases()
 
@@ -98,6 +107,7 @@ def calculate_accuracy(itr):
                     
                     total += 1
 
+    # calculate accuracy
     acc = correct / total
 
     print('Accuracy of network = ', np.round(acc*100, 2), '%')
@@ -136,7 +146,7 @@ def pickle_csv():
 def main():
     #test()
     train()
-    #calculate_accuracy(2000)
+    calculate_accuracy(2000)
     #pickle_csv()
 
 if __name__ == '__main__':
