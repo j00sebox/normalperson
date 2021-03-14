@@ -1,13 +1,14 @@
-from nn import NeuralNetwork
+from basicNN import basicNN
 import numpy as np
 import matplotlib.pyplot as plt
 import pickle
+import argparse
 
 # initialize labels
 l = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
 
 # initialize network topology
-digit = NeuralNetwork(784, [300, 100], 10, l, 0.005)
+digit = basicNN(784, [300, 100], 10, l, 0.005)
 
 def train():
 
@@ -29,7 +30,7 @@ def train():
 
     # iterate through all test batches
     for x in range(0, 999):
-        with open("pickled/pickled_mnist" + str(x) + ".plk", "br") as fh:
+        with open("pickled_train/pickled_mnist" + str(x) + ".plk", "br") as fh:
             data = pickle.load(fh)
             train_imgs = data[0]
             train_labels = data[1]
@@ -63,7 +64,7 @@ def test():
             break
         
         # open pickled test batch
-        with open("pickled/pickled_mnist" + str(inp) + ".plk", "br") as fh:
+        with open("pickled_test/pickled_mnist" + str(inp) + ".plk", "br") as fh:
                 data = pickle.load(fh)
                 test_imgs = data[0]
 
@@ -90,7 +91,7 @@ def calculate_accuracy(itr):
     for i in range(0, itr):
         # pick a random test batch
         r = np.random.randint(0, 165)
-        with open("pickled/pickled_mnist" + str(r) + ".plk", "br") as fh:
+        with open("pickled_test/pickled_mnist" + str(r) + ".plk", "br") as fh:
                     data = pickle.load(fh)
                     test_imgs = data[0]
                     test_labels = data[1]
@@ -121,13 +122,31 @@ def pickle_csv():
     row = 0
     last = 0
     batch = 0
-    for line in open("mnist_test.csv"):
-        test.append(np.fromstring(line, sep=","))
+    for line in open("data/mnist_train.csv"):
+        train.append(np.fromstring(line, sep=","))
         if row == (60 + last):
             last = row
             fac = 0.99 / 255
             train_imgs = np.asfarray(train) 
             train_labels = np.asfarray(train)
+
+            train_imgs = train_imgs[: , 1:] * fac + 0.01
+            train_labels = train_labels[: , :1]
+            with open("pickled_train/pickled_mnist" + str(batch) + ".plk", "bw") as fh:
+                data = (train_imgs, train_labels)
+                pickle.dump(data, fh)
+            batch += 1
+            train = []
+        row += 1
+
+    row = 0
+    last = 0
+    batch = 0
+    for line in open("data/mnist_test.csv"):
+        test.append(np.fromstring(line, sep=","))
+        if row == (60 + last):
+            last = row
+            fac = 0.99 / 255
 
             test_imgs = np.asfarray(test)
             test_labels = np.asfarray(test)
@@ -144,10 +163,27 @@ def pickle_csv():
 
 
 def main():
-    #test()
-    train()
-    calculate_accuracy(2000)
-    #pickle_csv()
+
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument('-T', action='store_true', dest='train', help='Train model on dataset.')
+    parser.add_argument('-t', action='store_true', dest='test', help='Enter testing mode.')
+    parser.add_argument('-a', action='store', type=int, dest='acc', help='Number of samples to caluclate the accuracy on.')
+    parser.add_argument('-p', action='store_true', dest='pick', help='Pickle training and testing data.')
+
+    args = parser.parse_args()
+
+    if (args.pick):
+        pickle_csv()
+    
+    if (args.train):
+        train()
+
+    if (args.acc):
+        calculate_accuracy(args.acc)
+
+    if (args.test):
+        test()
 
 if __name__ == '__main__':
     main()
