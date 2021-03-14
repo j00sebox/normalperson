@@ -2,6 +2,7 @@ import tensorflow as tf
 import matplotlib.pyplot as plot
 import random 
 import numpy as np
+import argparse
 
 # load mnist data into appropriate variables
 (train_img, train_labels), (test_img, test_labels) = tf.keras.datasets.mnist.load_data()
@@ -17,8 +18,8 @@ def train():
     network.add(tf.keras.layers.Flatten())
 
     # layers and nodes were chosen based off the best tested values from HWDigitRecognizer.py
-    network.add(tf.keras.layers.Dense(150, activation=tf.nn.sigmoid))
-    network.add(tf.keras.layers.Dense(120, activation=tf.nn.sigmoid))
+    network.add(tf.keras.layers.Dense(300, activation=tf.nn.sigmoid))
+    network.add(tf.keras.layers.Dense(100, activation=tf.nn.sigmoid))
 
     # output layer uses softmax to convert to probability distribution
     network.add(tf.keras.layers.Dense(10, activation=tf.nn.softmax))
@@ -48,5 +49,19 @@ def test():
     plot.imshow(test_img[r])
     plot.show()
 
-#train()
-test()
+def main():
+
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument('-T', action='store_true', dest='train', help='Train model on dataset.')
+    parser.add_argument('-t', action='store_true', dest='test', help='Enter testing mode.')
+
+     if (args.train):
+        train()
+
+    if (args.test):
+        test()
+ 
+
+if __name__ == '__main__':
+    main()
