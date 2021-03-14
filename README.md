@@ -20,6 +20,10 @@ The testing function is a bit unconventional. It gives the user a prompt of what
 
 There is also an option to calculate the accuracy of the model over n randomly chosen samples. This outputs a percentage of the samples it correctly guessed and is a much better indicator of how the model is performing.
 
+Accuracy of model over 5000 random samples:
+
+![Acc](/screenshots/acc.PNG)
+
 ## How to Use
 
 | Command | Description |
